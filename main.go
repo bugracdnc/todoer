@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODOER STRUCT
+// Todoer definition
 type Todoer struct {
 	Id          uuid.UUID `json:"id"`
 	Todo        string    `json:"todo"`
@@ -120,7 +120,12 @@ func makeDeleteRequest(uuid uuid.UUID) bool {
 	if err != nil {
 		panic(err)
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(res.Body)
 	if res.StatusCode == http.StatusNoContent {
 		return true
 	} else {
@@ -206,16 +211,16 @@ func usage() {
 	fmt.Println("commands:")
 
 	//Get longest command length
-	lenmax := 0
+	lenMax := 0
 	for key := range cmds {
-		if len(key) > lenmax {
-			lenmax = len(key)
+		if len(key) > lenMax {
+			lenMax = len(key)
 		}
 	}
 
 	//Print commands accommodating for the longest command
 	for key, info := range cmds {
-		printUsage(lenmax, key, info)
+		printUsage(lenMax, key, info)
 	}
 }
 
